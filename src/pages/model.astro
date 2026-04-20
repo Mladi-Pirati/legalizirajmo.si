@@ -1,0 +1,74 @@
+---
+import ArticleShell from "../components/ArticleShell.astro";
+import { lawPdfUrl } from "../data/site";
+import {
+  predlogReferencesHtml,
+  predlogSections,
+  predlogUpdatedAt,
+} from "../data/predlog";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const toc = [
+  ...predlogSections.map((section) => ({ id: section.id, label: section.label })),
+  { id: "viri", label: "Viri in opombe" },
+];
+---
+
+<BaseLayout
+  title="Predlog modela"
+  description="Celosten predlog za popolno legalizacijo in regulacijo konoplje v pregledni, dolgoformni obliki."
+>
+  <ArticleShell
+    eyebrow="Predlog modela"
+    title="Model popolne legalizacije in regulacije konoplje"
+    lede="Celosten pregled argumentov, ciljev in zakonodajnih rešitev za ureditev področja konoplje v Sloveniji."
+    links={[
+      { href: "/zakon", label: "Preberi zakon" },
+      { href: lawPdfUrl, label: "Odpri PDF zakona", external: true },
+    ]}
+    toc={toc}
+  >
+    <div class="space-y-8">
+      {
+        predlogSections.map((section) => (
+          <section
+            class="surface-sheet scroll-mt-28 p-7 sm:p-8"
+            id={section.id}
+          >
+            <h2 class="font-display text-3xl font-semibold tracking-[-0.04em] text-[var(--color-text)] sm:text-4xl">
+              {section.title}
+            </h2>
+            <div class="article-content mt-6" set:html={section.html} />
+          </section>
+        ))
+      }
+
+      <section
+        class="surface-sheet scroll-mt-28 p-7 sm:p-8"
+        id="viri"
+      >
+        <h2 class="font-display text-3xl font-semibold tracking-[-0.04em] text-[var(--color-text)] sm:text-4xl">
+          Viri in opombe
+        </h2>
+        <div class="article-content mt-6" set:html={predlogReferencesHtml} />
+        <p class="mt-6 text-sm tracking-[0.18em] text-[var(--color-text-muted)] uppercase">
+          {predlogUpdatedAt}
+        </p>
+      </section>
+    </div>
+
+    <div slot="aside" class="surface-panel p-6">
+      <h2 class="font-display text-xs tracking-[0.24em] text-[var(--color-text-muted)] uppercase">
+        Povezana vsebina
+      </h2>
+      <div class="mt-4 space-y-3">
+        <a class="button-secondary w-full" href="/zakon">
+          Predlog zakona
+        </a>
+        <a class="button-secondary w-full" href={lawPdfUrl} rel="noreferrer" target="_blank">
+          PDF zakona
+        </a>
+      </div>
+    </div>
+  </ArticleShell>
+</BaseLayout>

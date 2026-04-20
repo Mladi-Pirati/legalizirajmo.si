@@ -1,0 +1,64 @@
+---
+import ArticleShell from "../components/ArticleShell.astro";
+import { lawPdfUrl } from "../data/site";
+import { zakonIntroHtml, zakonSections } from "../data/zakon";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const toc = zakonSections.map((section) => ({
+  id: section.id,
+  label: section.label,
+}));
+---
+
+<BaseLayout
+  title="Predlog zakona o konoplji"
+  description="Povzetek predloga zakona o konoplji z neposredno povezavo do vloženega besedila."
+>
+  <ArticleShell
+    eyebrow="Predlog zakona"
+    title="Predlog zakona o konoplji"
+    lede="Zakon predstavlja bolj odgovorno soočanje s problematiko konoplje in jo premika iz nesmiselne represije v jasen, reguliran okvir."
+    links={[
+      { href: "/model", label: "Preberi predlog modela" },
+      { href: lawPdfUrl, label: "Besedilo vloženega zakona", external: true },
+    ]}
+    toc={toc}
+  >
+    <section class="surface-sheet p-7 sm:p-8">
+      <div class="article-content" set:html={zakonIntroHtml} />
+    </section>
+
+    {
+      zakonSections.map((section) => (
+        <section
+          class="surface-sheet mt-8 scroll-mt-28 p-7 sm:p-8"
+          id={section.id}
+        >
+          <h2 class="font-display text-3xl font-semibold tracking-[-0.04em] text-[var(--color-text)] sm:text-4xl">
+            {section.title}
+          </h2>
+          <div class="article-content mt-6" set:html={section.html} />
+        </section>
+      ))
+    }
+
+    <div slot="aside" class="surface-panel p-6">
+      <h2 class="font-display text-xs tracking-[0.24em] text-[var(--color-text-muted)] uppercase">
+        Gradiva
+      </h2>
+      <div class="mt-4 space-y-3">
+        <a
+          class="button-primary w-full"
+          href={lawPdfUrl}
+          rel="noreferrer"
+          target="_blank"
+        >
+          Odpri PDF zakona
+        </a>
+        <a class="button-secondary w-full" href="/model">
+          Predlog modela
+        </a>
+      </div>
+    </div>
+  </ArticleShell>
+</BaseLayout>

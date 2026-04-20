@@ -1,0 +1,96 @@
+---
+type TocItem = {
+  id: string;
+  label: string;
+};
+
+type HeroLink = {
+  href: string;
+  label: string;
+  external?: boolean;
+};
+
+interface Props {
+  eyebrow: string;
+  title: string;
+  lede: string;
+  description?: string;
+  toc: TocItem[];
+  links?: HeroLink[];
+}
+
+const { eyebrow, title, lede, description, toc, links = [] } = Astro.props;
+---
+
+<section class="border-b border-[var(--color-border)]">
+  <div class="mx-auto grid max-w-6xl gap-10 px-6 py-14 lg:grid-cols-[minmax(0,1fr)_18rem] lg:px-8 lg:py-20">
+    <div class="space-y-6">
+      <p class="eyebrow">{eyebrow}</p>
+      <div class="space-y-5">
+        <h1 class="font-display max-w-4xl text-4xl font-semibold tracking-[-0.04em] text-[var(--color-text)] sm:text-5xl lg:text-6xl">
+          {title}
+        </h1>
+        <p class="max-w-3xl text-lg leading-8 text-[var(--color-text-soft)] sm:text-xl">
+          {lede}
+        </p>
+        {
+          description && (
+            <p class="max-w-3xl text-base leading-8 text-[var(--color-text-muted)]">{description}</p>
+          )
+        }
+      </div>
+
+      {
+        links.length > 0 && (
+          <div class="flex flex-wrap gap-3">
+            {links.map((link) => (
+              <a
+                href={link.href}
+                rel={link.external ? "noreferrer" : undefined}
+                target={link.external ? "_blank" : undefined}
+                class={link.external ? "button-secondary" : "button-primary"}
+              >
+                {link.label}
+              </a>
+            ))}
+          </div>
+        )
+      }
+    </div>
+  </div>
+</section>
+
+<main id="main-content" class="mx-auto max-w-6xl px-6 py-12 lg:px-8 lg:py-16">
+  <div class="grid gap-12 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start">
+    <div class="order-2 lg:order-1">
+      <slot />
+    </div>
+
+    <aside class="order-1 lg:sticky lg:top-28 lg:order-2 lg:self-start">
+      <div class="space-y-5">
+        <div class="surface-panel p-6">
+          <h2 class="font-display text-xs tracking-[0.26em] text-[var(--color-text-muted)] uppercase">
+            Na tej strani
+          </h2>
+
+          <ul class="mt-4 space-y-2">
+            {
+              toc.map((item) => (
+                <li>
+                  <a
+                    href={`#${item.id}`}
+                    class="block rounded-2xl px-3 py-2 text-sm leading-6 text-[var(--color-text-soft)] transition hover:bg-[rgba(240,160,0,0.08)] hover:text-[var(--color-text)]"
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+
+        <slot name="aside" />
+      </div>
+    </aside>
+  </div>
+</main>

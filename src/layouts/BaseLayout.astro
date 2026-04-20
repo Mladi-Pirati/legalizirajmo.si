@@ -1,0 +1,50 @@
+---
+import SiteFooter from "../components/SiteFooter.astro";
+import SiteHeader from "../components/SiteHeader.astro";
+import { siteMetadata } from "../data/site";
+import "../styles/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title = siteMetadata.title, description = siteMetadata.description } = Astro.props;
+const pageTitle =
+  title === siteMetadata.title ? title : `${title} | ${siteMetadata.title}`;
+const canonicalUrl = new URL(Astro.url.pathname, siteMetadata.siteUrl).toString();
+---
+
+<html lang="sl">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <meta content={Astro.generator} name="generator" />
+    <meta content={description} name="description" />
+    <meta content="#fcf8f1" name="theme-color" />
+    <link href={canonicalUrl} rel="canonical" />
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <title>{pageTitle}</title>
+  </head>
+  <body class="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)] antialiased">
+    <a class="skip-link" href="#main-content">Preskoči na vsebino</a>
+
+    <div class="relative isolate min-h-screen overflow-x-clip">
+      <div
+        aria-hidden="true"
+        class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[34rem] bg-[radial-gradient(circle_at_top_left,_rgba(240,160,0,0.14),_transparent_30%),radial-gradient(circle_at_top_right,_rgba(240,160,0,0.08),_transparent_24%),linear-gradient(180deg,_rgba(255,255,255,0.82),_rgba(255,255,255,0)_38%)]"
+      ></div>
+
+      <SiteHeader />
+      <slot />
+      <SiteFooter />
+    </div>
+  </body>
+</html>

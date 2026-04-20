@@ -40,8 +40,6 @@ src/
     └── global.css           # CSS variables and utility classes
 ```
 
-All site content lives in `src/data/` as TypeScript objects with HTML string values rendered via Astro's `set:html` directive. Edit the data files — not the `.astro` files — when updating content.
-
 ## Deployment
 
 Includes a multi-stage `Dockerfile` that builds the site and serves it via nginx on port 80.

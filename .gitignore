@@ -27,3 +27,4 @@ pnpm-debug.log*
 # AI assistant bloat
 .superpowers/
 .claude/
+docs/superpowers/

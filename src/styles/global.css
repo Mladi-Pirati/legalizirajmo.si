@@ -10,8 +10,8 @@
   --color-text: #1f1a14;
   --color-text-soft: rgba(31, 26, 20, 0.78);
   --color-text-muted: rgba(31, 26, 20, 0.58);
-  --color-accent: #f0a000;
-  --color-accent-strong: #de9300;
+  --color-accent: #3d3830;
+  --color-accent-strong: #2a2520;
   --shadow-panel: 0 18px 45px rgba(111, 79, 25, 0.08);
   --shadow-float: 0 8px 20px rgba(111, 79, 25, 0.06);
 }
@@ -27,8 +27,8 @@ body {
   margin: 0;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.66), rgba(255, 255, 255, 0) 20%),
-    radial-gradient(circle at top left, rgba(240, 160, 0, 0.12), transparent 30%),
-    radial-gradient(circle at top right, rgba(240, 160, 0, 0.08), transparent 24%),
+    radial-gradient(circle at top left, rgba(61, 56, 48, 0.07), transparent 30%),
+    radial-gradient(circle at top right, rgba(61, 56, 48, 0.05), transparent 24%),
     var(--color-bg);
   color: var(--color-text);
   font-family: "Manrope", system-ui, sans-serif;
@@ -45,7 +45,7 @@ a {
 }
 
 ::selection {
-  background: rgba(240, 160, 0, 0.24);
+  background: rgba(61, 56, 48, 0.18);
   color: #1b1408;
 }
 
@@ -82,13 +82,13 @@ a {
 }
 
 .button-primary {
-  background: var(--color-accent);
-  color: #1b1408;
-  box-shadow: 0 14px 32px rgba(240, 160, 0, 0.18);
+  background: #1c1a17;
+  color: #fcf8f1;
+  box-shadow: 0 14px 32px rgba(28, 26, 23, 0.18);
 }
 
 .button-primary:hover {
-  background: var(--color-accent-strong);
+  background: #111010;
   transform: translateY(-1px);
 }
 
@@ -100,14 +100,14 @@ a {
 }
 
 .button-secondary:hover {
-  border-color: rgba(240, 160, 0, 0.32);
+  border-color: rgba(28, 26, 23, 0.22);
   background: rgba(255, 255, 255, 0.92);
   color: var(--color-text);
 }
 
 .button-primary:focus-visible,
 .button-secondary:focus-visible {
-  outline: 2px solid rgba(240, 160, 0, 0.55);
+  outline: 2px solid rgba(61, 56, 48, 0.5);
   outline-offset: 4px;
 }
 
@@ -139,7 +139,7 @@ a {
   z-index: 100;
   transform: translateY(-180%);
   padding: 0.8rem 1rem;
-  border: 1px solid rgba(240, 160, 0, 0.32);
+  border: 1px solid rgba(61, 56, 48, 0.28);
   border-radius: 9999px;
   background: rgba(255, 255, 255, 0.94);
   color: var(--color-text);
@@ -158,7 +158,7 @@ a {
 }
 
 .mobile-nav[open] summary {
-  border-color: rgba(240, 160, 0, 0.5);
+  border-color: rgba(61, 56, 48, 0.45);
   background: rgba(255, 255, 255, 0.96);
   color: var(--color-text);
 }
@@ -210,7 +210,7 @@ a {
 .article-content a {
   color: var(--color-accent);
   text-decoration: underline;
-  text-decoration-color: rgba(240, 160, 0, 0.34);
+  text-decoration-color: rgba(61, 56, 48, 0.34);
   text-underline-offset: 0.25em;
 }
 

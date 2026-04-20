@@ -2,7 +2,6 @@ import js from "@eslint/js";
 import tsESlintPlugin from "@typescript-eslint/eslint-plugin";
 import eslintPluginAstro from "eslint-plugin-astro";
 import tseslint from "typescript-eslint";
-import tailwindPlugin from "eslint-plugin-tailwindcss";
 import { fileURLToPath } from "url";
 import path from "path";
 
@@ -15,7 +14,6 @@ export default [
   js.configs.recommended,
   ...tseslint.configs.recommended,
   ...eslintPluginAstro.configs.recommended,
-  ...tailwindPlugin.configs["flat/recommended"],
   {
     settings: {
       tailwindcss: {

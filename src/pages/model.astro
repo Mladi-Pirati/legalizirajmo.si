@@ -35,7 +35,7 @@ const toc = [
             class="surface-sheet scroll-mt-28 p-7 sm:p-8"
             id={section.id}
           >
-            <h2 class="font-display text-3xl font-semibold tracking-[-0.04em] text-[var(--color-text)] sm:text-4xl">
+            <h2 class="font-display text-3xl font-semibold tracking-[-0.04em] text-(--color-text) sm:text-4xl">
               {section.title}
             </h2>
             <div class="article-content mt-6" set:html={section.html} />
@@ -47,18 +47,18 @@ const toc = [
         class="surface-sheet scroll-mt-28 p-7 sm:p-8"
         id="viri"
       >
-        <h2 class="font-display text-3xl font-semibold tracking-[-0.04em] text-[var(--color-text)] sm:text-4xl">
+        <h2 class="font-display text-3xl font-semibold tracking-[-0.04em] text-(--color-text) sm:text-4xl">
           Viri in opombe
         </h2>
         <div class="article-content mt-6" set:html={predlogReferencesHtml} />
-        <p class="mt-6 text-sm tracking-[0.18em] text-[var(--color-text-muted)] uppercase">
+        <p class="mt-6 text-sm tracking-[0.18em] text-(--color-text-muted) uppercase">
           {predlogUpdatedAt}
         </p>
       </section>
     </div>
 
     <div slot="aside" class="surface-panel p-6">
-      <h2 class="font-display text-xs tracking-[0.24em] text-[var(--color-text-muted)] uppercase">
+      <h2 class="font-display text-xs tracking-[0.24em] text-(--color-text-muted) uppercase">
         Povezana vsebina
       </h2>
       <div class="mt-4 space-y-3">

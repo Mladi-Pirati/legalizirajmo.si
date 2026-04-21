@@ -12,7 +12,7 @@ const {
   variant = 'panel',
   title,
   body,
-  placeholder = 'vaš@email.si',
+  placeholder = 'travo@legalizirajmo.si',
   buttonLabel = 'Obvestite me',
   disclaimer = 'Vašega naslova ne bomo delili s tretjimi osebami.',
 } = Astro.props;
@@ -65,6 +65,16 @@ const hasIntro = Boolean(title || body);
       </button>
     </div>
 
+    <div
+      class="newsletter-signup__captcha"
+      data-newsletter-captcha
+      hidden
+      tabindex="-1"
+      aria-label="Varnostno preverjanje"
+    >
+      <div class="newsletter-signup__captcha-widget" data-newsletter-captcha-widget></div>
+    </div>
+
     <p class="newsletter-signup__disclaimer">{disclaimer}</p>
     <p class="newsletter-signup__status" data-newsletter-status aria-live="polite"></p>
   </form>
@@ -97,6 +107,29 @@ const hasIntro = Boolean(title || body);
     display: flex;
     gap: 0.625rem;
     flex-wrap: wrap;
+  }
+
+  .newsletter-signup__captcha[hidden] {
+    display: none;
+  }
+
+  .newsletter-signup__captcha {
+    display: grid;
+    gap: 0.75rem;
+    align-self: flex-start;
+    padding: 0.95rem 1rem;
+    border: 1px solid rgba(86, 63, 28, 0.14);
+    border-radius: 1.125rem;
+    background: rgba(255, 255, 255, 0.72);
+    outline: none;
+  }
+
+  .newsletter-signup__captcha:focus {
+    box-shadow: 0 0 0 3px rgba(240, 160, 0, 0.12);
+  }
+
+  .newsletter-signup__captcha-widget {
+    min-height: 65px;
   }
 
   .newsletter-signup__input {
@@ -155,6 +188,10 @@ const hasIntro = Boolean(title || body);
 
   .newsletter-signup__status[data-state='error'] {
     color: #8f3325;
+  }
+
+  .newsletter-signup__status[data-state='info'] {
+    color: var(--color-text-soft);
   }
 
   .newsletter-signup__status[data-state='success'] {

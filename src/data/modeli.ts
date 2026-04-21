@@ -19,7 +19,7 @@ export const comparatorMeta = {
 export const emailSignup = {
   title: 'Ostanite obveščeni',
   body: 'Vpišite vaš e-poštni naslov in obvestili vas bomo o nadaljnjih korakih kampanje.',
-  placeholder: 'vaš@email.si',
+  placeholder: 'travo@legalizirajmo.si',
   button: 'Obvestite me',
   disclaimer: 'Vašega naslova ne bomo delili s tretjimi osebami.',
 };

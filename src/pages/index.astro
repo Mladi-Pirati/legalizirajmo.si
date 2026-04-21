@@ -4,10 +4,17 @@ import ModelComparator from "../components/ModelComparator.astro";
 import NewsletterSignup from "../components/NewsletterSignup.astro";
 
 const newsletterSubscribeEndpoint = import.meta.env.NEWSLETTER_SUBSCRIBE_ENDPOINT?.trim();
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY?.trim();
 
 if (!newsletterSubscribeEndpoint) {
   throw new Error(
     "Missing required NEWSLETTER_SUBSCRIBE_ENDPOINT environment variable. Add it to .env or your build environment."
+  );
+}
+
+if (!turnstileSiteKey) {
+  throw new Error(
+    "Missing required PUBLIC_TURNSTILE_SITE_KEY environment variable. Add it to .env or your build environment."
   );
 }
 ---
@@ -19,6 +26,7 @@ if (!newsletterSubscribeEndpoint) {
   <main
     id="main-content"
     data-newsletter-endpoint={newsletterSubscribeEndpoint}
+    data-turnstile-site-key={turnstileSiteKey}
   >
     <section class="border-b border-(--color-border) mb-14">
       <div class="mx-auto grid max-w-6xl gap-12 px-6 py-14 lg:grid-cols-[minmax(0,1.15fr)_minmax(19rem,0.85fr)] lg:px-8 lg:py-20">
@@ -86,28 +94,64 @@ if (!newsletterSubscribeEndpoint) {
     input: HTMLInputElement;
     submit: HTMLButtonElement;
     status: HTMLElement;
+    captchaContainer: HTMLElement;
+    captchaWidget: HTMLElement;
+    captchaToken: string | null;
+    captchaWidgetId: string | null;
   };
 
-  type NewsletterStatusState = 'error' | 'success' | null;
+  type NewsletterStatusState = 'error' | 'info' | 'success' | null;
 
   type NewsletterErrorPayload = {
+    code?: string;
     fieldErrors?: {
       email?: string[];
     };
   };
+
+  type TurnstileRenderOptions = {
+    sitekey: string;
+    theme?: 'auto' | 'dark' | 'light';
+    callback?: (token: string) => void;
+    'expired-callback'?: () => void;
+    'error-callback'?: () => void;
+  };
+
+  type TurnstileApi = {
+    render: (container: HTMLElement, options: TurnstileRenderOptions) => string;
+    reset: (widgetId?: string) => void;
+  };
+
+  type NewsletterWindow = Window &
+    typeof globalThis & {
+      turnstile?: TurnstileApi;
+      __newsletterTurnstileReady__?: () => void;
+    };
 
   const uiMessages = {
     busy: 'Pošiljanje...',
     success: 'Uspešno ste prijavljeni na obvestila.',
     validation: 'Vnesite veljaven e-poštni naslov.',
     duplicate: 'Ta e-poštni naslov je že prijavljen.',
+    captchaRequired: 'Za nadaljevanje potrdite, da niste robot.',
+    captchaPending: 'Najprej potrdite, da niste robot, nato znova kliknite "Obvestite me".',
+    captchaSolved: 'Preverjanje uspešno. Za nadaljevanje znova kliknite "Obvestite me".',
+    captchaInvalid: 'Preverjanje je poteklo ali ni uspelo. Poskusite znova.',
+    captchaLoadError: 'Varnostnega preverjanja trenutno ni mogoče naložiti. Poskusite znova čez trenutek.',
+    rateLimited: 'Prijave so začasno omejene. Poskusite znova malo kasneje.',
     generic: 'Prijave na obvestila trenutno ni mogoče oddati. Poskusite znova kasneje.',
   };
 
+  const turnstileScriptSrc =
+    'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=__newsletterTurnstileReady__';
   const pageRoot = document.getElementById('main-content');
   const newsletterEndpoint = pageRoot?.dataset.newsletterEndpoint?.trim();
+  const turnstileSiteKey = pageRoot?.dataset.turnstileSiteKey?.trim();
 
-  if (pageRoot instanceof HTMLElement && newsletterEndpoint) {
+  if (pageRoot instanceof HTMLElement && newsletterEndpoint && turnstileSiteKey) {
+    const resolvedNewsletterEndpoint = newsletterEndpoint;
+    const resolvedTurnstileSiteKey = turnstileSiteKey;
+    const newsletterWindow = window as NewsletterWindow;
     const validator = document.createElement('input');
     validator.type = 'email';
     validator.required = true;
@@ -119,22 +163,37 @@ if (!newsletterSubscribeEndpoint) {
         const input = form.querySelector('[data-newsletter-input]');
         const submit = form.querySelector('[data-newsletter-submit]');
         const status = form.querySelector('[data-newsletter-status]');
+        const captchaContainer = form.querySelector('[data-newsletter-captcha]');
+        const captchaWidget = form.querySelector('[data-newsletter-captcha-widget]');
 
         if (
           !(form instanceof HTMLFormElement) ||
           !(input instanceof HTMLInputElement) ||
           !(submit instanceof HTMLButtonElement) ||
-          !(status instanceof HTMLElement)
+          !(status instanceof HTMLElement) ||
+          !(captchaContainer instanceof HTMLElement) ||
+          !(captchaWidget instanceof HTMLElement)
         ) {
           return null;
         }
 
-        return { form, input, submit, status };
+        return {
+          form,
+          input,
+          submit,
+          status,
+          captchaContainer,
+          captchaWidget,
+          captchaToken: null,
+          captchaWidgetId: null,
+        };
       })
       .filter((form): form is NewsletterFormInstance => form !== null);
 
     let isSubscribed = false;
     let isSubmitting = false;
+    let captchaRequired = false;
+    let turnstileLoader: Promise<TurnstileApi> | null = null;
 
     function normalizeEmail(value: string): string {
       return value.trim().toLowerCase();
@@ -167,6 +226,24 @@ if (!newsletterSubscribeEndpoint) {
       instance.input.setAttribute('aria-invalid', 'true');
     }
 
+    function showCaptcha(instance: NewsletterFormInstance, shouldFocus = false): void {
+      instance.captchaContainer.hidden = false;
+
+      if (shouldFocus) {
+        window.requestAnimationFrame(() => {
+          instance.captchaContainer.focus();
+        });
+      }
+    }
+
+    function resetCaptcha(instance: NewsletterFormInstance): void {
+      instance.captchaToken = null;
+
+      if (instance.captchaWidgetId && newsletterWindow.turnstile) {
+        newsletterWindow.turnstile.reset(instance.captchaWidgetId);
+      }
+    }
+
     function setAvailability(instance: NewsletterFormInstance): void {
       const disabled = isSubscribed || isSubmitting;
       const defaultLabel = instance.submit.dataset.defaultLabel || 'Obvestite me';
@@ -186,6 +263,8 @@ if (!newsletterSubscribeEndpoint) {
 
         if (isSubscribed) {
           instance.input.value = '';
+          instance.captchaContainer.hidden = true;
+          instance.captchaToken = null;
           setStatus(instance, 'success', uiMessages.success);
         }
       });
@@ -204,6 +283,142 @@ if (!newsletterSubscribeEndpoint) {
         return JSON.parse(responseText);
       } catch {
         return null;
+      }
+    }
+
+    function formatRetryAfter(retryAfterValue: string | null): string | null {
+      if (!retryAfterValue) {
+        return null;
+      }
+
+      const seconds = Number(retryAfterValue);
+
+      if (Number.isFinite(seconds)) {
+        return formatRelativeDuration(seconds * 1000);
+      }
+
+      const retryAt = Date.parse(retryAfterValue);
+
+      if (Number.isNaN(retryAt)) {
+        return null;
+      }
+
+      return formatRelativeDuration(retryAt - Date.now());
+    }
+
+    function formatRelativeDuration(milliseconds: number): string {
+      const totalSeconds = Math.max(1, Math.ceil(milliseconds / 1000));
+
+      if (totalSeconds < 60) {
+        return `${totalSeconds} s`;
+      }
+
+      const totalMinutes = Math.ceil(totalSeconds / 60);
+
+      if (totalMinutes < 60) {
+        return `${totalMinutes} min`;
+      }
+
+      return `${Math.ceil(totalMinutes / 60)} h`;
+    }
+
+    function getRateLimitMessage(retryAfterValue: string | null): string {
+      const formattedRetryAfter = formatRetryAfter(retryAfterValue);
+
+      if (!formattedRetryAfter) {
+        return uiMessages.rateLimited;
+      }
+
+      return `Prijave so začasno omejene. Poskusite znova čez približno ${formattedRetryAfter}.`;
+    }
+
+    async function ensureTurnstileReady(): Promise<TurnstileApi> {
+      if (newsletterWindow.turnstile) {
+        return newsletterWindow.turnstile;
+      }
+
+      if (turnstileLoader) {
+        return turnstileLoader;
+      }
+
+      turnstileLoader = new Promise<TurnstileApi>((resolve, reject) => {
+        const handleReady = (): void => {
+          delete newsletterWindow.__newsletterTurnstileReady__;
+
+          if (!newsletterWindow.turnstile) {
+            turnstileLoader = null;
+            reject(new Error('Turnstile API was not initialized.'));
+            return;
+          }
+
+          resolve(newsletterWindow.turnstile);
+        };
+
+        newsletterWindow.__newsletterTurnstileReady__ = handleReady;
+
+        const existingScript = document.querySelector('script[data-newsletter-turnstile-script]');
+
+        if (existingScript instanceof HTMLScriptElement) {
+          existingScript.remove();
+        }
+
+        const script = document.createElement('script');
+        script.src = turnstileScriptSrc;
+        script.async = true;
+        script.defer = true;
+        script.dataset.newsletterTurnstileScript = 'true';
+        script.onerror = () => {
+          delete newsletterWindow.__newsletterTurnstileReady__;
+          turnstileLoader = null;
+          reject(new Error('Failed to load Turnstile.'));
+        };
+
+        document.head.append(script);
+      });
+
+      return turnstileLoader;
+    }
+
+    async function ensureCaptcha(
+      instance: NewsletterFormInstance,
+      options: { focus?: boolean; reset?: boolean } = {}
+    ): Promise<boolean> {
+      showCaptcha(instance, options.focus);
+
+      try {
+        const turnstile = await ensureTurnstileReady();
+
+        if (!instance.captchaWidgetId) {
+          instance.captchaWidgetId = turnstile.render(instance.captchaWidget, {
+            sitekey: resolvedTurnstileSiteKey,
+            theme: 'auto',
+            callback: (token: string) => {
+              instance.captchaToken = token;
+              setStatus(instance, 'info', uiMessages.captchaSolved);
+            },
+            'expired-callback': () => {
+              resetCaptcha(instance);
+              setStatus(instance, 'info', uiMessages.captchaInvalid);
+            },
+            'error-callback': () => {
+              instance.captchaToken = null;
+              setStatus(instance, 'error', uiMessages.captchaLoadError);
+            },
+          });
+        } else if (options.reset) {
+          resetCaptcha(instance);
+        }
+
+        if (options.focus) {
+          window.requestAnimationFrame(() => {
+            instance.captchaContainer.focus();
+          });
+        }
+
+        return true;
+      } catch {
+        setStatus(instance, 'error', uiMessages.captchaLoadError);
+        return false;
       }
     }
 
@@ -234,17 +449,36 @@ if (!newsletterSubscribeEndpoint) {
           return;
         }
 
+        if (captchaRequired && !instance.captchaToken) {
+          const isChallengeReady = await ensureCaptcha(instance, { focus: true });
+
+          if (isChallengeReady) {
+            setStatus(instance, 'info', uiMessages.captchaPending);
+          }
+
+          return;
+        }
+
+        const captchaToken = captchaRequired ? instance.captchaToken : null;
+        const requestBody = captchaToken
+          ? { email: normalizedEmail, captchaToken }
+          : { email: normalizedEmail };
+
         isSubmitting = true;
         syncAllForms();
 
         try {
-          const response = await fetch(newsletterEndpoint, {
+          const response = await fetch(resolvedNewsletterEndpoint, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ email: normalizedEmail }),
+            body: JSON.stringify(requestBody),
           });
+
+          if (captchaToken) {
+            resetCaptcha(instance);
+          }
 
           if (response.status === 204) {
             isSubscribed = true;
@@ -258,9 +492,39 @@ if (!newsletterSubscribeEndpoint) {
           isSubmitting = false;
           syncAllForms();
 
+          if (response.status === 429 && payload?.code === 'captcha_required') {
+            captchaRequired = true;
+
+            const isChallengeReady = await ensureCaptcha(instance, {
+              focus: true,
+              reset: false,
+            });
+
+            if (isChallengeReady) {
+              setStatus(instance, 'info', uiMessages.captchaRequired);
+            }
+
+            return;
+          }
+
           if (response.status === 409) {
             markInvalid(instance);
             setStatus(instance, 'error', uiMessages.duplicate);
+            return;
+          }
+
+          if (response.status === 400 && payload?.code === 'captcha_invalid') {
+            captchaRequired = true;
+
+            const isChallengeReady = await ensureCaptcha(instance, {
+              focus: true,
+              reset: false,
+            });
+
+            if (isChallengeReady) {
+              setStatus(instance, 'error', uiMessages.captchaInvalid);
+            }
+
             return;
           }
 
@@ -276,8 +540,17 @@ if (!newsletterSubscribeEndpoint) {
             return;
           }
 
+          if (response.status === 429) {
+            setStatus(instance, 'error', getRateLimitMessage(response.headers.get('Retry-After')));
+            return;
+          }
+
           setStatus(instance, 'error', uiMessages.generic);
         } catch {
+          if (captchaToken) {
+            resetCaptcha(instance);
+          }
+
           isSubmitting = false;
           syncAllForms();
           setStatus(instance, 'error', uiMessages.generic);

@@ -84,22 +84,22 @@ export const policyModels: PolicyModel[] = [
     summary:
       'Oglasil sem se v lokalni trgovini s THC izdelki, kjer sem si lahko izbral točno tisto sorto, ki mi je na tisti deževen dan najbolj ustrezala. Ko sem pod stresom, mi včasih paše, in dobro je vedeti, da lahko vse kupim v preverjeni trgovini po pošteni ceni. Nato si zvijem špinel in se odpravim na kavo.',
     details: [
-      { label: 'POSEDOVANJE', value: 'Legalno za odrasle' },
+      { label: 'POSEDOVANJE', value: 'Dovoljeno odraslim, z jasno določenimi količinskimi omejitvami.' },
       {
         label: 'PRIDELAVA',
-        value: 'Prednost malim domačim pridelovalcem pred tujimi korporacijami',
+        value: 'Vzpostavljen je licenčni sistem, ki daje prednost manjšim domačim pridelovalcem pred velikimi tujimi korporacijami.',
       },
       {
         label: 'PRODAJA/DOBAVA',
-        value: 'Licencirani trg z omejitvami oglaševanja (po zgledu tobačnih izdelkov)',
+        value: 'Prodaja poteka v licenciranih trgovinah, oglaševanje pa je omejeno po zgledu tobačnih izdelkov.',
       },
       {
         label: 'PRIHODKI',
-        value: 'Trošarine usmerjene v preventivne programe, mladinske dejavnosti in zdravstvo',
+        value: 'Prihodki iz trošarin se stekajo v državni proračun in se namenjajo preventivnim programom, mladinskim dejavnostim ter zdravstvu.',
       },
       {
         label: 'JAVNO ZDRAVJE',
-        value: 'Znanstveno utemeljena merila za vožnjo in delo; zaščita mladoletnih',
+        value: 'Vzpostavljena so znanstveno utemeljena merila za vožnjo in delo pod vplivom, zagotovljen je strog nadzor kakovosti izdelkov ter okrepljena zaščita mladoletnih.',
       },
     ],
   },

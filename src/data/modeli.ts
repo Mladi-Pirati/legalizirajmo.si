@@ -64,7 +64,7 @@ export const policyModels: PolicyModel[] = [
     badgeVariant: 'teal',
     title: 'Češki model',
     summary:
-      'Sem češki Pirat. Doma sem posadil tri sadike in prvič sem res vedel, kaj uživam in kako je bilo vzgojeno. Občasno grem v lokalni park, kjer vem, da nikogar ne motim in počutim sem se kot božanstvo, ker mi končno nihče nič ne more samo zato ker kadim en špinel in sem malo zadet. Včasih je prav lepo biti iz države z bolj smiselnimi zakoni.',
+      'Sem češki Pirat. Doma sem posadil tri sadike in prvič sem res vedel, kaj uživam in kako je bilo vzgojeno. Občasno grem v lokalni park, kjer vem, da nikogar ne motim in počutim se kot božanstvo, ker mi končno nihče nič ne more samo zato ker kadim en špinel in sem malo zadet. Včasih je prav lepo biti iz države z bolj smiselnimi zakoni.',
     details: [
       { label: 'POSEDOVANJE', value: 'Odraslim je dovoljeno imeti do 100 g doma in do 25 g v javnosti.' },
       { label: 'PRIDELAVA', value: 'Odrasli lahko doma vzgojijo do tri rastline za lastno uporabo.' },

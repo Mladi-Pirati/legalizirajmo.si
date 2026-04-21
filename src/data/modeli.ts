@@ -46,11 +46,11 @@ export const policyModels: PolicyModel[] = [
     badgeVariant: 'orange',
     title: 'Delna reforma',
     summary:
-      'S punco sva se sprehajala ob Dravi. Dan je bil dolg in prijeten, razpoloženje sproščeno in odločila sva se, da stestirava uparjalnik, ki sem ga dobil za. Takrat do naju pristopi moški, star vsaj okoli štirideset let, v adidas trenirki in rdečih Nike Air Force supergah, oblečen nekoliko preveč mladostno, da ne bi vzbudil suma. Predstavi se kot kriminalist in mi zaseže, kar sem imel pri sebi. Razpoloženje je bilo v trenutku pokvarjeno, zato sva se s punco premaknila drugam. Ko sem se čez ramo še enkrat ozrl nazaj, sem videl, kako si kriminalist mirno zvija mojo travo.',
+      'S punco sva se sprehajala ob Dravi. Dan je bil dolg in prijeten, razpoloženje sproščeno in odločila sva se, da stestirava uparjalnik, ki sem ga dobil za rojstni dan. Takrat do naju pristopi moški, star vsaj okoli štirideset let, v adidas trenirki in rdečih Nike Air Force supergah, oblečen nekoliko preveč mladostno, da ne bi vzbudil suma. Predstavi se kot kriminalist in mi zaseže, kar sem imel pri sebi. Razpoloženje je bilo v trenutku pokvarjeno, zato sva se s punco premaknila drugam. Ko sem se čez ramo še enkrat ozrl nazaj, sem videl, kako si kriminalist mirno zvija mojo travo.',
     details: [
       {
         label: 'POSEDOVANJE',
-        value: 'Prekršek; globa podobna prometni — brez kazenskega postopka',
+        value: 'Prekršek; globa podobna prometni brez kazenskega postopka',
       },
       { label: 'PRIDELAVA', value: 'Kaznivo dejanje' },
       { label: 'PRODAJA/DOBAVA', value: 'Ostaja kaznivo dejanje' },

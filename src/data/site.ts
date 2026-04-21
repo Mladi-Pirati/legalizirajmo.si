@@ -41,21 +41,18 @@ export const navItems: NavItem[] = [
 export const homeHighlights: Highlight[] = [
   {
     value: "15 mio EUR",
-    label: "konservativno ocenjenih dodatnih letnih prihodkov",
+    label: "<span class=\"font-extrabold italic\">konservativno</span> ocenjenih dodatnih letnih prihodkov",
     detail: "Ocena temelji na obdavčitvi regulirane prodaje izdelkov iz konoplje.",
-    href: "/model#priloznosti",
   },
   {
     value: "18.000+",
     label: "novih delovnih mest v prvem letu legalizacije v Koloradu",
     detail: "Primer pokaže, kako hitro se lahko odprejo podjetniške in razvojne priložnosti.",
-    href: "/model#priloznosti",
   },
   {
     value: "70 %",
     label: "vseh kršitev na področju prepovedanih drog je bilo povezanih s konopljo",
     detail: "Regulacija bi razbremenila sodišča in policijo ter omejila črni trg.",
-    href: "/model#priloznosti",
   },
 ];
 
@@ -63,7 +60,7 @@ export const homeSections: HomeSection[] = [
   {
     id: "prohibicija",
     title: "Prohibicija ne deluje",
-    lead: "Sedanja ureditev povzroča več škode kot koristi in problematiko konoplje reducira na represijo.",
+    lead: "",
     body: [
       "Sedanja ureditev na področju gojenja in uživanja konoplje ima zaradi svoje represivne narave precej več negativnih kot pozitivnih učinkov. Medicinska raba ostaja omejena, rekreativna raba pa je prepuščena črnemu trgu.",
       "Tak pristop ne varuje uporabnikov, ne podpira javnega zdravja in ne omogoča, da bi gospodarski potencial te rastline ostal na domačih tleh.",
@@ -72,7 +69,7 @@ export const homeSections: HomeSection[] = [
   {
     id: "moznosti",
     title: "Izkoristimo možnosti, ki jih ponuja konoplja",
-    lead: "Glavni cilj predloga je omogočiti svobodno in varno uporabo izdelkov iz konoplje v medicinske, industrijske in rekreativne namene.",
+    lead: "Naš glavni cilj je omogočiti svobodno in varno uporabo izdelkov iz konoplje v industrijske in rekreativne namene.",
     body: [
       "Reguliran trg lahko prispeva k dvigu gospodarske rasti, dodatnim proračunskim prihodkom, novim delovnim mestom in bolj odgovorni uporabi.",
     ],

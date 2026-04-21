@@ -1,7 +1,7 @@
 import type { ArticleSection } from "./predlog";
 
 export const zakonIntroHtml = `
-  <p>Zakon za popolno legalizacijo in regulacijo konoplje smo <strong><a href="https://piratskastranka.si" title="Pirati">Pirati</a></strong> v sodelovanju s <strong>Krogom mladih SMC</strong> pripravili na osnovi <a href="/predlog" title="Predlog modela za popolno legalizacijo in regulacijo konoplje">Modela za popolno legalizacijo in regulacijo</a>.</p>
+  <p>Zakon za popolno legalizacijo in regulacijo konoplje smo <strong><a href="https://piratskastranka.si" title="Pirati">Pirati</a></strong> pripravili na osnovi <a href="/model" title="Predlog modela za popolno legalizacijo in regulacijo konoplje">Modela za popolno legalizacijo in regulacijo</a>.</p>
   <p>Zakon predstavlja bolj odgovorno soočanje s problematiko konoplje, ki je zdaj reducirana na nesmiselno represijo.</p>
 `;
 
@@ -11,15 +11,7 @@ export const zakonSections: ArticleSection[] = [
     label: "Popolna legalizacija",
     title: "Popolna legalizacija",
     html: `
-      <p>Konopljo se v celoti črta iz <a href="http://www.pisrs.si/Pis.web/pregledPredpisa?id=URED6743">Uredbe o razvrstitvi prepovedanih drog</a>. Črta se tudi ostala dosedanja (nepotrebno restriktivna) ureditev industrijske konoplje. S tem rastlino industrijsko konopljo izenačimo z drugimi poljščinami. Dodatno reguliramo le psihoaktivno sestavino.</p>
-    `,
-  },
-  {
-    id: "medicinska-uporaba",
-    label: "Medicinska in raziskovalna uporaba",
-    title: "Zakon sprošča medicinsko in znanstveno-raziskovalno uporabo",
-    html: `
-      <p>Črtanje konoplje iz Uredbe o razvrstitvi prepovedanih drog izenači njeno uporabo v medicinske in znanstveno-raziskovalne namene z drugimi rastlinami (in v primeru THC spojinami). Zakon konoplje v te namene dodatno ne ureja, saj to ni potrebno oziroma to že urejajo drugi predlogi zakonov.</p>
+      <p>Konopljo se v celoti črta iz <a href="http://www.pisrs.si/Pis.web/pregledPredpisa?id=URED6743" target="_blank">Uredbe o razvrstitvi prepovedanih drog</a>. Črta se tudi ostala dosedanja (nepotrebno restriktivna) ureditev industrijske konoplje. S tem rastlino industrijsko konopljo izenačimo z drugimi poljščinami. Dodatno reguliramo le psihoaktivno sestavino.</p>
     `,
   },
   {

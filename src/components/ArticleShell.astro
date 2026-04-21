@@ -1,4 +1,6 @@
 ---
+import { homeHighlights } from "../data/site";
+
 type TocItem = {
   id: string;
   label: string;
@@ -17,25 +19,39 @@ interface Props {
   description?: string;
   toc: TocItem[];
   links?: HeroLink[];
+  renderHighlights?: boolean;
 }
 
-const { eyebrow, title, lede, description, toc, links = [] } = Astro.props;
+const {
+  eyebrow,
+  title,
+  lede,
+  description,
+  toc,
+  links = [],
+  renderHighlights = false,
+} = Astro.props;
 ---
 
 <section class="border-b border-(--color-border)">
-  <div class="mx-auto grid max-w-6xl gap-10 px-6 py-14 lg:grid-cols-[minmax(0,1fr)_18rem] lg:px-8 lg:py-20">
+  <div
+    class="mx-auto grid max-w-6xl gap-10 px-6 py-14 lg:grid-cols-[minmax(0,1fr)_18rem] lg:px-8 lg:py-20">
     <div class="space-y-6">
       <p class="eyebrow">{eyebrow}</p>
       <div class="space-y-5">
-        <h1 class="font-display max-w-4xl text-4xl font-semibold tracking-[-0.04em] text-(--color-text) sm:text-5xl lg:text-6xl">
+        <h1
+          class="font-display max-w-4xl text-4xl font-semibold tracking-[-0.04em] text-(--color-text) sm:text-5xl lg:text-6xl">
           {title}
         </h1>
-        <p class="max-w-3xl text-lg leading-8 text-(--color-text-soft) sm:text-xl">
+        <p
+          class="max-w-3xl text-lg leading-8 text-(--color-text-soft) sm:text-xl">
           {lede}
         </p>
         {
           description && (
-            <p class="max-w-3xl text-base leading-8 text-(--color-text-muted)">{description}</p>
+            <p class="max-w-3xl text-base leading-8 text-(--color-text-muted)">
+              {description}
+            </p>
           )
         }
       </div>
@@ -48,8 +64,7 @@ const { eyebrow, title, lede, description, toc, links = [] } = Astro.props;
                 href={link.href}
                 rel={link.external ? "noreferrer" : undefined}
                 target={link.external ? "_blank" : undefined}
-                class={link.external ? "button-secondary" : "button-primary"}
-              >
+                class={link.external ? "button-secondary" : "button-primary"}>
                 {link.label}
               </a>
             ))}
@@ -61,6 +76,28 @@ const { eyebrow, title, lede, description, toc, links = [] } = Astro.props;
 </section>
 
 <main id="main-content" class="mx-auto max-w-6xl px-6 py-12 lg:px-8 lg:py-16">
+  {
+    !!renderHighlights && (
+      <section class="mx-auto max-w-6xl px-6 pb-12 lg:px-8 lg:pb-16">
+        <div class="grid gap-4 md:grid-cols-3">
+          {homeHighlights.map((highlight) => (
+            <article class="surface-panel p-6 sm:p-7">
+              <p class="font-display text-4xl font-semibold tracking-[-0.05em] text-(--color-accent)">
+                {highlight.value}
+              </p>
+              <div
+                class="mt-3 text-sm leading-6 font-semibold text-(--color-text)"
+                set:html={highlight.label}
+              />
+              <p class="mt-2 text-sm leading-7 text-(--color-text-muted)">
+                {highlight.detail}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+    )
+  }
   <div class="grid gap-12 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start">
     <div class="order-2 lg:order-1">
       <slot />
@@ -69,7 +106,8 @@ const { eyebrow, title, lede, description, toc, links = [] } = Astro.props;
     <aside class="order-1 lg:sticky lg:top-28 lg:order-2 lg:self-start">
       <div class="space-y-5">
         <div class="surface-panel p-6">
-          <h2 class="font-display text-xs tracking-[0.26em] text-(--color-text-muted) uppercase">
+          <h2
+            class="font-display text-xs tracking-[0.26em] text-(--color-text-muted) uppercase">
             Na tej strani
           </h2>
 
@@ -79,8 +117,7 @@ const { eyebrow, title, lede, description, toc, links = [] } = Astro.props;
                 <li>
                   <a
                     href={`#${item.id}`}
-                    class="block rounded-2xl px-3 py-2 text-sm leading-6 text-(--color-text-soft) transition hover:bg-[rgba(240,160,0,0.08)] hover:text-(--color-text)"
-                  >
+                    class="block rounded-2xl px-3 py-2 text-sm leading-6 text-(--color-text-soft) transition hover:bg-[rgba(240,160,0,0.08)] hover:text-(--color-text)">
                     {item.label}
                   </a>
                 </li>

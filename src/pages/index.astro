@@ -1,9 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import {
-  homeHighlights,
-  homeSections,
-} from "../data/site";
+import ModelComparator from "../components/ModelComparator.astro";
 ---
 
 <BaseLayout
@@ -11,7 +8,7 @@ import {
   description="Sodobna, pregledna predstavitev argumentov za popolno legalizacijo in regulacijo konoplje."
 >
   <main id="main-content">
-    <section class="border-b border-(--color-border)">
+    <section class="border-b border-(--color-border) mb-14">
       <div class="mx-auto grid max-w-6xl gap-12 px-6 py-14 lg:grid-cols-[minmax(0,1.15fr)_minmax(19rem,0.85fr)] lg:px-8 lg:py-20">
         <div class="space-y-8">
           <div class="space-y-6">
@@ -20,16 +17,25 @@ import {
             </h1>
 
             <p class="max-w-3xl text-lg leading-8 text-(--color-text-soft) sm:text-xl">
-              Predlog zagovarja jasno, odgovorno in pregledno ureditev področja
+              Zagovarjamo jasno, odgovorno in pregledno ureditev področja
               konoplje: manj represije, več javnega nadzora, boljša zaščita
-              uporabnikov in več prostora za medicinski, industrijski ter razvojni
+              uporabnikov in več prostora za industrijski ter razvojni
               potencial.
             </p>
           </div>
 
-          <div class="flex flex-wrap gap-3">
-            <a class="button-primary" href="/model">Preberi predlog modela</a>
-            <a class="button-secondary" href="/zakon">Preberi zakon</a>
+          <div class="space-y-2">
+            <form class="hero-email-form" novalidate>
+              <input
+                type="email"
+                class="hero-email-input"
+                placeholder="vaš@email.si"
+                required
+                aria-label="E-poštni naslov"
+              />
+              <button type="submit" class="button-primary">Obvestite me</button>
+            </form>
+            <p class="text-xs text-(--color-text-muted)">Vašega naslova ne bomo delili s tretjimi osebami.</p>
           </div>
         </div>
 
@@ -54,64 +60,7 @@ import {
       </div>
     </section>
 
-    <section class="mx-auto max-w-6xl px-6 py-12 lg:px-8 lg:py-16">
-      <div class="grid gap-4 md:grid-cols-3">
-        {
-          homeHighlights.map((highlight) => (
-            <article class="surface-panel p-6 sm:p-7">
-              <p class="font-display text-4xl font-semibold tracking-[-0.05em] text-(--color-accent)">
-                {highlight.value}
-              </p>
-              <p class="mt-3 text-sm leading-6 font-semibold text-(--color-text)">
-                {highlight.label}
-              </p>
-              <p class="mt-2 text-sm leading-7 text-(--color-text-muted)">{highlight.detail}</p>
-              {highlight.href && (
-                <a
-                  class="mt-4 inline-block text-xs font-semibold tracking-wide text-(--color-accent) hover:underline"
-                  href={highlight.href}
-                >
-                  Preberi več →
-                </a>
-              )}
-            </article>
-          ))
-        }
-      </div>
-    </section>
-
-    <section class="mx-auto max-w-6xl px-6 pb-16 lg:px-8 lg:pb-24">
-      <div class="divide-y divide-(--color-border)">
-        {
-          homeSections.map((section) => (
-            <article class="max-w-4xl py-10" id={section.id}>
-              <h2 class="font-display mt-4 text-3xl font-semibold tracking-[-0.04em] text-(--color-text) sm:text-4xl">
-                {section.title}
-              </h2>
-              <p class="mt-4 text-lg leading-8 text-(--color-text-soft)">{section.lead}</p>
-
-              <div class="mt-6 space-y-4 text-base leading-8 text-(--color-text-soft)">
-                {section.body.map((paragraph) => <p>{paragraph}</p>)}
-              </div>
-
-              {
-                section.bullets && (
-                  <div class="mt-6 border-l-2 border-[rgba(61,56,48,0.45)] pl-4">
-                    <ul class="flex flex-col gap-[0.45rem]">
-                      {section.bullets.map((bullet) => (
-                        <li class="text-sm leading-6 text-(--color-text-soft) before:mr-[0.45rem] before:font-bold before:text-(--color-accent) before:content-['—']">
-                          {bullet}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )
-              }
-            </article>
-          ))
-        }
-      </div>
-    </section>
+    <ModelComparator />
 
     <section class="border-t border-(--color-border)">
       <div class="mx-auto grid max-w-6xl gap-6 px-6 py-12 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center lg:px-8 lg:py-16">
@@ -130,3 +79,35 @@ import {
     </section>
   </main>
 </BaseLayout>
+
+<style>
+  .hero-email-form {
+    display: flex;
+    gap: 0.625rem;
+    flex-wrap: wrap;
+  }
+
+  .hero-email-input {
+    flex: 1 1 200px;
+    padding: 0.825rem 1.2rem;
+    border: 1px solid var(--color-border);
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.88);
+    font-size: 0.95rem;
+    color: var(--color-text);
+    font-family: inherit;
+    outline: none;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .hero-email-input::placeholder {
+    color: var(--color-text-muted);
+  }
+
+  .hero-email-input:focus {
+    border-color: rgba(86, 63, 28, 0.32);
+    box-shadow: 0 0 0 3px rgba(240, 160, 0, 0.1);
+  }
+</style>

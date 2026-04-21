@@ -1,13 +1,25 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import ModelComparator from "../components/ModelComparator.astro";
+import NewsletterSignup from "../components/NewsletterSignup.astro";
+
+const newsletterSubscribeEndpoint = import.meta.env.NEWSLETTER_SUBSCRIBE_ENDPOINT?.trim();
+
+if (!newsletterSubscribeEndpoint) {
+  throw new Error(
+    "Missing required NEWSLETTER_SUBSCRIBE_ENDPOINT environment variable. Add it to .env or your build environment."
+  );
+}
 ---
 
 <BaseLayout
   title="Legalizirajmo, regulirajmo, profitirajmo."
   description="Sodobna, pregledna predstavitev argumentov za popolno legalizacijo in regulacijo konoplje."
 >
-  <main id="main-content">
+  <main
+    id="main-content"
+    data-newsletter-endpoint={newsletterSubscribeEndpoint}
+  >
     <section class="border-b border-(--color-border) mb-14">
       <div class="mx-auto grid max-w-6xl gap-12 px-6 py-14 lg:grid-cols-[minmax(0,1.15fr)_minmax(19rem,0.85fr)] lg:px-8 lg:py-20">
         <div class="space-y-8">
@@ -24,19 +36,7 @@ import ModelComparator from "../components/ModelComparator.astro";
             </p>
           </div>
 
-          <div class="space-y-2">
-            <form class="hero-email-form" novalidate>
-              <input
-                type="email"
-                class="hero-email-input"
-                placeholder="vaš@email.si"
-                required
-                aria-label="E-poštni naslov"
-              />
-              <button type="submit" class="button-primary">Obvestite me</button>
-            </form>
-            <p class="text-xs text-(--color-text-muted)">Vašega naslova ne bomo delili s tretjimi osebami.</p>
-          </div>
+          <NewsletterSignup variant="hero" />
         </div>
 
         <aside class="surface-panel p-6 sm:p-8">
@@ -80,34 +80,209 @@ import ModelComparator from "../components/ModelComparator.astro";
   </main>
 </BaseLayout>
 
-<style>
-  .hero-email-form {
-    display: flex;
-    gap: 0.625rem;
-    flex-wrap: wrap;
-  }
+<script>
+  type NewsletterFormInstance = {
+    form: HTMLFormElement;
+    input: HTMLInputElement;
+    submit: HTMLButtonElement;
+    status: HTMLElement;
+  };
 
-  .hero-email-input {
-    flex: 1 1 200px;
-    padding: 0.825rem 1.2rem;
-    border: 1px solid var(--color-border);
-    border-radius: 9999px;
-    background: rgba(255, 255, 255, 0.88);
-    font-size: 0.95rem;
-    color: var(--color-text);
-    font-family: inherit;
-    outline: none;
-    transition:
-      border-color 0.2s ease,
-      box-shadow 0.2s ease;
-  }
+  type NewsletterStatusState = 'error' | 'success' | null;
 
-  .hero-email-input::placeholder {
-    color: var(--color-text-muted);
-  }
+  type NewsletterErrorPayload = {
+    fieldErrors?: {
+      email?: string[];
+    };
+  };
 
-  .hero-email-input:focus {
-    border-color: rgba(86, 63, 28, 0.32);
-    box-shadow: 0 0 0 3px rgba(240, 160, 0, 0.1);
+  const uiMessages = {
+    busy: 'Pošiljanje...',
+    success: 'Uspešno ste prijavljeni na obvestila.',
+    validation: 'Vnesite veljaven e-poštni naslov.',
+    duplicate: 'Ta e-poštni naslov je že prijavljen.',
+    generic: 'Prijave na obvestila trenutno ni mogoče oddati. Poskusite znova kasneje.',
+  };
+
+  const pageRoot = document.getElementById('main-content');
+  const newsletterEndpoint = pageRoot?.dataset.newsletterEndpoint?.trim();
+
+  if (pageRoot instanceof HTMLElement && newsletterEndpoint) {
+    const validator = document.createElement('input');
+    validator.type = 'email';
+    validator.required = true;
+
+    const forms: NewsletterFormInstance[] = Array.from(
+      pageRoot.querySelectorAll('form[data-newsletter-form]')
+    )
+      .map((form): NewsletterFormInstance | null => {
+        const input = form.querySelector('[data-newsletter-input]');
+        const submit = form.querySelector('[data-newsletter-submit]');
+        const status = form.querySelector('[data-newsletter-status]');
+
+        if (
+          !(form instanceof HTMLFormElement) ||
+          !(input instanceof HTMLInputElement) ||
+          !(submit instanceof HTMLButtonElement) ||
+          !(status instanceof HTMLElement)
+        ) {
+          return null;
+        }
+
+        return { form, input, submit, status };
+      })
+      .filter((form): form is NewsletterFormInstance => form !== null);
+
+    let isSubscribed = false;
+    let isSubmitting = false;
+
+    function normalizeEmail(value: string): string {
+      return value.trim().toLowerCase();
+    }
+
+    function isValidEmail(value: string): boolean {
+      validator.value = value;
+      return validator.checkValidity();
+    }
+
+    function setStatus(
+      instance: NewsletterFormInstance,
+      state: NewsletterStatusState,
+      message: string
+    ): void {
+      instance.status.textContent = message;
+
+      if (state) {
+        instance.status.dataset.state = state;
+      } else {
+        delete instance.status.dataset.state;
+      }
+    }
+
+    function clearValidation(instance: NewsletterFormInstance): void {
+      instance.input.removeAttribute('aria-invalid');
+    }
+
+    function markInvalid(instance: NewsletterFormInstance): void {
+      instance.input.setAttribute('aria-invalid', 'true');
+    }
+
+    function setAvailability(instance: NewsletterFormInstance): void {
+      const disabled = isSubscribed || isSubmitting;
+      const defaultLabel = instance.submit.dataset.defaultLabel || 'Obvestite me';
+
+      instance.form.dataset.busy = isSubmitting ? 'true' : 'false';
+      instance.form.dataset.state = isSubscribed ? 'success' : 'idle';
+      instance.form.setAttribute('aria-busy', isSubmitting ? 'true' : 'false');
+      instance.input.disabled = disabled;
+      instance.submit.disabled = disabled;
+      instance.submit.textContent = isSubmitting ? uiMessages.busy : defaultLabel;
+    }
+
+    function syncAllForms(): void {
+      forms.forEach((instance) => {
+        clearValidation(instance);
+        setAvailability(instance);
+
+        if (isSubscribed) {
+          instance.input.value = '';
+          setStatus(instance, 'success', uiMessages.success);
+        }
+      });
+    }
+
+    async function readJsonSafely(
+      response: Response
+    ): Promise<NewsletterErrorPayload | null> {
+      const responseText = await response.text();
+
+      if (!responseText) {
+        return null;
+      }
+
+      try {
+        return JSON.parse(responseText);
+      } catch {
+        return null;
+      }
+    }
+
+    forms.forEach((instance: NewsletterFormInstance) => {
+      setAvailability(instance);
+
+      instance.form.addEventListener('submit', async (event: SubmitEvent) => {
+        event.preventDefault();
+
+        if (isSubmitting || isSubscribed) {
+          return;
+        }
+
+        const normalizedEmail = normalizeEmail(instance.input.value);
+        instance.input.value = normalizedEmail;
+
+        forms.forEach((formInstance: NewsletterFormInstance) => {
+          clearValidation(formInstance);
+
+          if (!isSubscribed) {
+            setStatus(formInstance, null, '');
+          }
+        });
+
+        if (!isValidEmail(normalizedEmail)) {
+          markInvalid(instance);
+          setStatus(instance, 'error', uiMessages.validation);
+          return;
+        }
+
+        isSubmitting = true;
+        syncAllForms();
+
+        try {
+          const response = await fetch(newsletterEndpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email: normalizedEmail }),
+          });
+
+          if (response.status === 204) {
+            isSubscribed = true;
+            isSubmitting = false;
+            syncAllForms();
+            return;
+          }
+
+          const payload = await readJsonSafely(response);
+
+          isSubmitting = false;
+          syncAllForms();
+
+          if (response.status === 409) {
+            markInvalid(instance);
+            setStatus(instance, 'error', uiMessages.duplicate);
+            return;
+          }
+
+          if (
+            response.status === 400 &&
+            payload &&
+            typeof payload === 'object' &&
+            payload.fieldErrors &&
+            Array.isArray(payload.fieldErrors.email)
+          ) {
+            markInvalid(instance);
+            setStatus(instance, 'error', uiMessages.validation);
+            return;
+          }
+
+          setStatus(instance, 'error', uiMessages.generic);
+        } catch {
+          isSubmitting = false;
+          syncAllForms();
+          setStatus(instance, 'error', uiMessages.generic);
+        }
+      });
+    });
   }
-</style>
+</script>

@@ -1,0 +1,176 @@
+---
+interface Props {
+  variant?: 'hero' | 'panel';
+  title?: string;
+  body?: string;
+  placeholder?: string;
+  buttonLabel?: string;
+  disclaimer?: string;
+}
+
+const {
+  variant = 'panel',
+  title,
+  body,
+  placeholder = 'vaš@email.si',
+  buttonLabel = 'Obvestite me',
+  disclaimer = 'Vašega naslova ne bomo delili s tretjimi osebami.',
+} = Astro.props;
+
+const hasIntro = Boolean(title || body);
+---
+
+<div class:list={['newsletter-signup', `newsletter-signup--${variant}`]}>
+  {
+    title && (
+      <h3 class="newsletter-signup__title font-display text-2xl font-semibold tracking-[-0.03em] text-(--color-text)">
+        {title}
+      </h3>
+    )
+  }
+  {
+    body && (
+      <p class="newsletter-signup__body text-base leading-7 text-(--color-text-soft)">
+        {body}
+      </p>
+    )
+  }
+
+  <form
+    class:list={[
+      'newsletter-signup__form',
+      hasIntro && 'newsletter-signup__form--with-copy',
+    ]}
+    data-newsletter-form
+    novalidate
+  >
+    <div class="newsletter-signup__controls">
+      <input
+        type="email"
+        name="email"
+        class="newsletter-signup__input"
+        data-newsletter-input
+        placeholder={placeholder}
+        required
+        autocomplete="email"
+        aria-label="E-poštni naslov"
+      />
+      <button
+        type="submit"
+        class="button-primary newsletter-signup__button"
+        data-newsletter-submit
+        data-default-label={buttonLabel}
+      >
+        {buttonLabel}
+      </button>
+    </div>
+
+    <p class="newsletter-signup__disclaimer">{disclaimer}</p>
+    <p class="newsletter-signup__status" data-newsletter-status aria-live="polite"></p>
+  </form>
+</div>
+
+<style>
+  .newsletter-signup--panel {
+    margin-top: 2.5rem;
+    padding: 2rem;
+    border: 1px solid rgba(86, 63, 28, 0.1);
+    border-radius: 1.5rem;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(250, 244, 236, 0.86));
+  }
+
+  .newsletter-signup__body {
+    margin: 0.5rem 0 0;
+  }
+
+  .newsletter-signup__form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .newsletter-signup__form--with-copy {
+    margin-top: 1.25rem;
+  }
+
+  .newsletter-signup__controls {
+    display: flex;
+    gap: 0.625rem;
+    flex-wrap: wrap;
+  }
+
+  .newsletter-signup__input {
+    flex: 1 1 220px;
+    padding: 0.825rem 1.2rem;
+    border: 1px solid var(--color-border);
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.88);
+    font-size: 0.95rem;
+    color: var(--color-text);
+    font-family: inherit;
+    outline: none;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease,
+      opacity 0.2s ease;
+  }
+
+  .newsletter-signup--hero .newsletter-signup__input {
+    flex-basis: 200px;
+  }
+
+  .newsletter-signup__input::placeholder {
+    color: var(--color-text-muted);
+  }
+
+  .newsletter-signup__input:focus {
+    border-color: rgba(86, 63, 28, 0.32);
+    box-shadow: 0 0 0 3px rgba(240, 160, 0, 0.1);
+  }
+
+  .newsletter-signup__input[aria-invalid='true'] {
+    border-color: rgba(159, 55, 41, 0.48);
+    box-shadow: 0 0 0 3px rgba(159, 55, 41, 0.12);
+  }
+
+  .newsletter-signup__input:disabled {
+    opacity: 0.78;
+    cursor: not-allowed;
+  }
+
+  .newsletter-signup__button:disabled {
+    opacity: 0.76;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 10px 24px rgba(28, 26, 23, 0.14);
+  }
+
+  .newsletter-signup__status {
+    min-height: 1.4rem;
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.45;
+    color: var(--color-text-muted);
+  }
+
+  .newsletter-signup__status[data-state='error'] {
+    color: #8f3325;
+  }
+
+  .newsletter-signup__status[data-state='success'] {
+    color: #226449;
+    font-weight: 700;
+  }
+
+  .newsletter-signup__disclaimer {
+    margin: 0;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+
+  @media (max-width: 767px) {
+    .newsletter-signup--panel {
+      padding: 1.5rem;
+    }
+  }
+</style>

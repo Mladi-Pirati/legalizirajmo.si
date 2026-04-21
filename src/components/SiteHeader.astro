@@ -25,7 +25,7 @@ const isActive = (href: string) =>
       </div>
     </a>
 
-    <nav aria-label="Glavna navigacija" class="hidden items-center gap-2 md:flex">
+    <nav aria-label="Glavna navigacija" class="flex items-center gap-2">
       {
         navItems.map((item) => {
           const active = isActive(item.href);
@@ -46,36 +46,5 @@ const isActive = (href: string) =>
         })
       }
     </nav>
-
-    <details class="mobile-nav relative md:hidden">
-      <summary class="flex cursor-pointer list-none items-center gap-2 rounded-full border border-(--color-border) bg-white/72 px-4 py-2 text-sm font-semibold text-(--color-text-soft) shadow-(--shadow-float) transition hover:border-[rgba(240,160,0,0.34)] hover:text-(--color-text)">
-        <span class="font-display text-xs tracking-[0.24em] uppercase">Meni</span>
-        <span aria-hidden="true" class="text-base leading-none">+</span>
-      </summary>
-
-      <div class="absolute top-[calc(100%+0.9rem)] right-0 w-64 rounded-3xl border border-(--color-border) bg-[rgba(255,252,246,0.96)] p-3 shadow-(--shadow-panel)">
-        <nav aria-label="Mobilna navigacija" class="flex flex-col gap-1">
-          {
-            navItems.map((item) => {
-              const active = isActive(item.href);
-
-              return (
-                <a
-                  href={item.href}
-                  aria-current={active ? "page" : undefined}
-                  class={`rounded-2xl px-4 py-3 text-sm font-semibold transition ${
-                    active
-                      ? "bg-[rgba(240,160,0,0.16)] text-(--color-text)"
-                      : "text-(--color-text-soft) hover:bg-[rgba(240,160,0,0.08)] hover:text-(--color-text)"
-                  }`}
-                >
-                  {item.label}
-                </a>
-              );
-            })
-          }
-        </nav>
-      </div>
-    </details>
   </div>
 </header>

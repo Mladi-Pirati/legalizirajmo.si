@@ -1,5 +1,6 @@
 ---
 import { policyModels, comparatorMeta, emailSignup } from '../data/modeli';
+import NewsletterSignup from './NewsletterSignup.astro';
 ---
 
 <section id="modeli" class="mx-auto max-w-6xl px-6 pb-16 lg:px-8 lg:pb-24">
@@ -71,24 +72,14 @@ import { policyModels, comparatorMeta, emailSignup } from '../data/modeli';
     }
   </div>
 
-  <!-- Email signup -->
-  <div class="email-panel">
-    <h3 class="font-display text-2xl font-semibold tracking-[-0.03em] text-(--color-text)">
-      {emailSignup.title}
-    </h3>
-    <p class="mt-2 text-base leading-7 text-(--color-text-soft)">{emailSignup.body}</p>
-    <form class="email-form mt-5" novalidate>
-      <input
-        type="email"
-        placeholder={emailSignup.placeholder}
-        class="email-input"
-        required
-        aria-label="E-poštni naslov"
-      />
-      <button type="submit" class="button-primary">{emailSignup.button}</button>
-    </form>
-    <p class="mt-3 text-xs text-(--color-text-muted)">{emailSignup.disclaimer}</p>
-  </div>
+  <NewsletterSignup
+    variant="panel"
+    title={emailSignup.title}
+    body={emailSignup.body}
+    placeholder={emailSignup.placeholder}
+    buttonLabel={emailSignup.button}
+    disclaimer={emailSignup.disclaimer}
+  />
 </section>
 
 <style>
@@ -357,44 +348,6 @@ import { policyModels, comparatorMeta, emailSignup } from '../data/modeli';
     }
   }
 
-  /* ---- Email signup ---- */
-  .email-panel {
-    margin-top: 2.5rem;
-    padding: 2rem;
-    border: 1px solid rgba(86, 63, 28, 0.1);
-    border-radius: 1.5rem;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(250, 244, 236, 0.86));
-  }
-
-  .email-form {
-    display: flex;
-    gap: 0.625rem;
-    flex-wrap: wrap;
-  }
-
-  .email-input {
-    flex: 1 1 220px;
-    padding: 0.825rem 1.2rem;
-    border: 1px solid var(--color-border);
-    border-radius: 9999px;
-    background: rgba(255, 255, 255, 0.88);
-    font-size: 0.95rem;
-    color: var(--color-text);
-    font-family: inherit;
-    outline: none;
-    transition:
-      border-color 0.2s ease,
-      box-shadow 0.2s ease;
-  }
-
-  .email-input::placeholder {
-    color: var(--color-text-muted);
-  }
-
-  .email-input:focus {
-    border-color: rgba(86, 63, 28, 0.32);
-    box-shadow: 0 0 0 3px rgba(240, 160, 0, 0.1);
-  }
 </style>
 
 <script>

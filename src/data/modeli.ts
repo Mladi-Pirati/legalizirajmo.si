@@ -31,7 +31,7 @@ export const policyModels: PolicyModel[] = [
     badgeVariant: 'red',
     title: 'Popolna prepoved',
     summary:
-      'Zaradi naključne preiskave in 0,8 g, ki sem jih imela samo pri sebi, sem pristala v priporu in tam čakala na hišno preiskavo. V zapisnik so zapisali, da skrivam dokaze, ker sem jim rekla, da imam CBD. Samo po sreči, ker doma nisem imela več ničesar, in milosti sodnika se je končalo brez zaporne kazni in kartoteke.',
+      'Zaradi naključne preiskave in 0,8 g, ki sem jih imela samo pri sebi, sem pristala v priporu in tam čakala na hišno preiskavo. V zapisnik so zapisali, da skrivam dokaze, ker sem jim rekla, da imam CBD doma. Samo po sreči, ker doma nisem imela več ničesar, in milosti sodnika se je končalo brez zaporne kazni in kartoteke.',
     details: [
       { label: 'POSEDOVANJE', value: 'Zaporne ali denarne kazni, hišne preiskave, uničena življenja.' },
       { label: 'PRIDELAVA', value: 'Kdor rastlino vzgoji doma, stori kaznivo dejanje, ne glede na količino in namen.' },
@@ -50,12 +50,12 @@ export const policyModels: PolicyModel[] = [
     details: [
       {
         label: 'POSEDOVANJE',
-        value: 'Prekršek; globa podobna prometni brez kazenskega postopka',
+        value: 'Posedovanje majhnih količin za osebno rabo se obravnava kot prekršek z globo, podobno prometnemu prekršku.',
       },
-      { label: 'PRIDELAVA', value: 'Kaznivo dejanje' },
-      { label: 'PRODAJA/DOBAVA', value: 'Ostaja kaznivo dejanje' },
-      { label: 'PRIHODKI', value: 'Nič; črni trg ostaja nespremenjen' },
-      { label: 'JAVNO ZDRAVJE', value: 'Brez nadzora kakovosti; vsebnost THC neznana' },
+      { label: 'PRIDELAVA', value: 'Kdor si rastlino vzgoji doma, še vedno stori kaznivo dejanje, ne glede na to, ali jo namerava komu ponuditi.' },
+      { label: 'PRODAJA/DOBAVA', value: 'Vsaka izročitev drugi osebi, tudi če je brezplačna in med prijatelji, je lahko kaznovana z zaporno kaznijo.' },
+      { label: 'PRIHODKI', value: 'Konopljo se prodaja, denar se obrača, država pa od tega nima nobene koristi. Ves denar konča v rokah mafije in preprodajalcev.' },
+      { label: 'JAVNO ZDRAVJE', value: 'Izdelki krožijo brez nadzora in nihče ne preverja potencialno smrtonosnih primesi. Uporabniki in pacienti so prepuščeni sami sebi.' },
     ],
   },
   {

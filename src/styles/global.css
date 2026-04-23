@@ -203,6 +203,10 @@ a {
   list-style-type: decimal;
 }
 
+.article-content ol[type="i"] {
+  list-style-type: lower-roman;
+}
+
 .article-content li + li {
   margin-top: 0.75rem;
 }
@@ -212,6 +216,7 @@ a {
   text-decoration: underline;
   text-decoration-color: rgba(61, 56, 48, 0.34);
   text-underline-offset: 0.25em;
+  overflow-wrap: anywhere;
 }
 
 .article-content strong {

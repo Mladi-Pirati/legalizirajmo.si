@@ -34,6 +34,7 @@ export const lawPdfUrl = "https://legalizirajmo.si/zakon-o-konoplji-v1.1.pdf";
 
 export const navItems: NavItem[] = [
   { href: "/", label: "Domov" },
+  { href: "/piratski-model", label: "Piratski Model" },
   // { href: "/model", label: "Model" },
   // { href: "/zakon", label: "Zakon" },
 ];

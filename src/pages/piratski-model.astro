@@ -1,0 +1,71 @@
+---
+import ArticleShell from "../components/ArticleShell.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import {
+  piratskiModelDate,
+  piratskiModelReferencesHtml,
+  piratskiModelSections,
+  piratskiModelTitle,
+} from "../data/piratskiModel";
+
+const toc = [
+  ...piratskiModelSections.map((section) => ({
+    id: section.id,
+    label: section.label,
+  })),
+  { id: "viri", label: "Viri" },
+];
+---
+
+<BaseLayout
+  title="Piratski Model"
+  description="Stališče Piratov do zakonodaje o konoplji iz aprila 2026 z viri iz izvornega dokumenta."
+>
+  <ArticleShell
+    eyebrow="Piratski Model"
+    title={piratskiModelTitle}
+    lede={piratskiModelDate}
+    links={[
+      { href: "/model", label: "Predlog modela" },
+      { href: "/zakon", label: "Predlog zakona" },
+    ]}
+    toc={toc}
+  >
+    <div class="space-y-8">
+      {
+        piratskiModelSections.map((section) => (
+          <section
+            class="surface-sheet scroll-mt-28 p-7 sm:p-8"
+            id={section.id}
+          >
+            <h2 class="font-display text-3xl font-semibold tracking-[-0.04em] text-(--color-text) sm:text-4xl">
+              {section.title}
+            </h2>
+            <div class="article-content mt-6" set:html={section.html} />
+          </section>
+        ))
+      }
+
+      <section class="surface-sheet scroll-mt-28 p-7 sm:p-8" id="viri">
+        <h2 class="font-display text-3xl font-semibold tracking-[-0.04em] text-(--color-text) sm:text-4xl">
+          Viri
+        </h2>
+        <div class="article-content mt-6" set:html={piratskiModelReferencesHtml} />
+      </section>
+    </div>
+
+    <div slot="aside" class="surface-panel p-6">
+      <h2 class="font-display text-xs tracking-[0.24em] text-(--color-text-muted) uppercase">
+        Povezana vsebina
+      </h2>
+      <div class="mt-4 space-y-3">
+        <a class="button-secondary w-full" href="/model">
+          Predlog modela
+        </a>
+        <a class="button-secondary w-full" href="/zakon">
+          Predlog zakona
+        </a>
+      </div>
+    </div>
+  </ArticleShell>
+</BaseLayout>

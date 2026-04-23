@@ -18,7 +18,7 @@ export const comparatorMeta = {
 
 export const emailSignup = {
   title: 'Ostanite obveščeni',
-  body: 'Vpišite vaš e-poštni naslov in obvestili vas bomo o nadaljnjih korakih kampanje.',
+  body: 'Pripravljamo nov zakon o konoplji. O njegovi zasnovi, obravnavi in sprejetju te bomo obveščali sproti.',
   placeholder: 'travo@legalizirajmo.si',
   button: 'Obvestite me',
   disclaimer: 'Vašega naslova ne bomo delili s tretjimi osebami.',
@@ -36,7 +36,7 @@ export const policyModels: PolicyModel[] = [
       { label: 'POSEDOVANJE', value: 'Zaporne ali denarne kazni, hišne preiskave, uničena življenja.' },
       { label: 'PRIDELAVA', value: 'Kdor rastlino vzgoji doma, stori kaznivo dejanje, ne glede na količino in namen.' },
       { label: 'PRODAJA/DOBAVA', value: 'Večletne zaporne kazni, tudi, če si le podaril nekaj prijatelju.' },
-      { label: 'PRIHODKI', value: 'Konoplja se prodaja, denar se obrača ,od tega pa imajo koristi samo mafija in preprodajalci.' },
+      { label: 'PRIHODKI', value: 'Konoplja se prodaja, denar se obrača, od tega pa imajo koristi samo mafija in preprodajalci.' },
       { label: 'JAVNO ZDRAVJE', value: 'Izdelki krožijo brez nadzora in nihče ne preverja potencialno smrtonosnih primesi. Uporabniki in pacienti so prepuščeni sami sebi.' },
     ],
   },

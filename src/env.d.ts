@@ -1,7 +1,7 @@
 /// <reference types="astro/client" />
 
 interface ImportMetaEnv {
-  readonly NEWSLETTER_SUBSCRIBE_ENDPOINT: string;
+  readonly APPLICATIONS_RECEIVER_BASE_URL: string;
   readonly PUBLIC_TURNSTILE_SITE_KEY: string;
 }
 

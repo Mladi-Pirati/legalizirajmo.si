@@ -3,12 +3,13 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import ModelComparator from "../components/ModelComparator.astro";
 import NewsletterSignup from "../components/NewsletterSignup.astro";
 
-const newsletterSubscribeEndpoint = import.meta.env.NEWSLETTER_SUBSCRIBE_ENDPOINT?.trim();
+const applicationsReceiverBaseUrl = import.meta.env.APPLICATIONS_RECEIVER_BASE_URL?.trim();
+const newsletterSubscriptionsPath = "/api/newsletters/legalizirajmo-si/subscriptions";
 const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY?.trim();
 
-if (!newsletterSubscribeEndpoint) {
+if (!applicationsReceiverBaseUrl) {
   throw new Error(
-    "Missing required NEWSLETTER_SUBSCRIBE_ENDPOINT environment variable. Add it to .env or your build environment."
+    "Missing required APPLICATIONS_RECEIVER_BASE_URL environment variable. Add it to .env or your build environment."
   );
 }
 
@@ -17,6 +18,8 @@ if (!turnstileSiteKey) {
     "Missing required PUBLIC_TURNSTILE_SITE_KEY environment variable. Add it to .env or your build environment."
   );
 }
+
+const newsletterSubscribeEndpoint = `${applicationsReceiverBaseUrl.replace(/\/+$/, "")}${newsletterSubscriptionsPath}`;
 ---
 
 <BaseLayout
@@ -98,6 +101,7 @@ if (!turnstileSiteKey) {
     captchaWidget: HTMLElement;
     captchaToken: string | null;
     captchaWidgetId: string | null;
+    pendingCaptchaEmail: string | null;
   };
 
   type NewsletterStatusState = 'error' | 'info' | 'success' | null;
@@ -186,6 +190,7 @@ if (!turnstileSiteKey) {
           captchaWidget,
           captchaToken: null,
           captchaWidgetId: null,
+          pendingCaptchaEmail: null,
         };
       })
       .filter((form): form is NewsletterFormInstance => form !== null);
@@ -244,6 +249,20 @@ if (!turnstileSiteKey) {
       }
     }
 
+    async function handleCaptchaToken(
+      instance: NewsletterFormInstance,
+      token: string
+    ): Promise<void> {
+      instance.captchaToken = token;
+
+      if (!instance.pendingCaptchaEmail || isSubmitting || isSubscribed) {
+        setStatus(instance, 'info', uiMessages.captchaSolved);
+        return;
+      }
+
+      await submitNewsletter(instance, instance.pendingCaptchaEmail, token);
+    }
+
     function setAvailability(instance: NewsletterFormInstance): void {
       const disabled = isSubscribed || isSubmitting;
       const defaultLabel = instance.submit.dataset.defaultLabel || 'Obvestite me';
@@ -265,6 +284,7 @@ if (!turnstileSiteKey) {
           instance.input.value = '';
           instance.captchaContainer.hidden = true;
           instance.captchaToken = null;
+          instance.pendingCaptchaEmail = null;
           setStatus(instance, 'success', uiMessages.success);
         }
       });
@@ -332,6 +352,20 @@ if (!turnstileSiteKey) {
       return `Prijave so začasno omejene. Poskusite znova čez približno ${formattedRetryAfter}.`;
     }
 
+    function getEmailValidationMessage(payload: NewsletterErrorPayload): string {
+      const [firstEmailError] = payload.fieldErrors?.email ?? [];
+
+      if (typeof firstEmailError !== 'string' || !firstEmailError.trim()) {
+        return uiMessages.validation;
+      }
+
+      if (firstEmailError === 'A valid email address is required.') {
+        return uiMessages.validation;
+      }
+
+      return firstEmailError.trim();
+    }
+
     async function ensureTurnstileReady(): Promise<TurnstileApi> {
       if (newsletterWindow.turnstile) {
         return newsletterWindow.turnstile;
@@ -393,8 +427,7 @@ if (!turnstileSiteKey) {
             sitekey: resolvedTurnstileSiteKey,
             theme: 'auto',
             callback: (token: string) => {
-              instance.captchaToken = token;
-              setStatus(instance, 'info', uiMessages.captchaSolved);
+              void handleCaptchaToken(instance, token);
             },
             'expired-callback': () => {
               resetCaptcha(instance);
@@ -419,6 +452,110 @@ if (!turnstileSiteKey) {
       } catch {
         setStatus(instance, 'error', uiMessages.captchaLoadError);
         return false;
+      }
+    }
+
+    async function submitNewsletter(
+      instance: NewsletterFormInstance,
+      normalizedEmail: string,
+      captchaToken: string | null
+    ): Promise<void> {
+      const requestBody = captchaToken
+        ? { email: normalizedEmail, captchaToken }
+        : { email: normalizedEmail };
+
+      isSubmitting = true;
+      syncAllForms();
+
+      try {
+        const response = await fetch(resolvedNewsletterEndpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody),
+        });
+
+        if (captchaToken) {
+          resetCaptcha(instance);
+        }
+
+        if (response.status === 204) {
+          isSubscribed = true;
+          isSubmitting = false;
+          syncAllForms();
+          return;
+        }
+
+        const payload = await readJsonSafely(response);
+
+        isSubmitting = false;
+        syncAllForms();
+
+        if (response.status === 429 && payload?.code === 'captcha_required') {
+          captchaRequired = true;
+          instance.pendingCaptchaEmail = normalizedEmail;
+
+          const isChallengeReady = await ensureCaptcha(instance, {
+            focus: true,
+            reset: false,
+          });
+
+          if (isChallengeReady && !instance.captchaToken) {
+            setStatus(instance, 'info', uiMessages.captchaRequired);
+          }
+
+          return;
+        }
+
+        if (response.status === 409) {
+          markInvalid(instance);
+          setStatus(instance, 'error', uiMessages.duplicate);
+          return;
+        }
+
+        if (response.status === 400 && payload?.code === 'captcha_invalid') {
+          captchaRequired = true;
+          instance.pendingCaptchaEmail = normalizedEmail;
+
+          const isChallengeReady = await ensureCaptcha(instance, {
+            focus: true,
+            reset: true,
+          });
+
+          if (isChallengeReady) {
+            setStatus(instance, 'error', uiMessages.captchaInvalid);
+          }
+
+          return;
+        }
+
+        if (
+          response.status === 400 &&
+          payload &&
+          typeof payload === 'object' &&
+          payload.fieldErrors &&
+          Array.isArray(payload.fieldErrors.email)
+        ) {
+          markInvalid(instance);
+          setStatus(instance, 'error', getEmailValidationMessage(payload));
+          return;
+        }
+
+        if (response.status === 429) {
+          setStatus(instance, 'error', getRateLimitMessage(response.headers.get('Retry-After')));
+          return;
+        }
+
+        setStatus(instance, 'error', uiMessages.generic);
+      } catch {
+        if (captchaToken) {
+          resetCaptcha(instance);
+        }
+
+        isSubmitting = false;
+        syncAllForms();
+        setStatus(instance, 'error', uiMessages.generic);
       }
     }
 
@@ -450,6 +587,7 @@ if (!turnstileSiteKey) {
         }
 
         if (captchaRequired && !instance.captchaToken) {
+          instance.pendingCaptchaEmail = normalizedEmail;
           const isChallengeReady = await ensureCaptcha(instance, { focus: true });
 
           if (isChallengeReady) {
@@ -460,101 +598,7 @@ if (!turnstileSiteKey) {
         }
 
         const captchaToken = captchaRequired ? instance.captchaToken : null;
-        const requestBody = captchaToken
-          ? { email: normalizedEmail, captchaToken }
-          : { email: normalizedEmail };
-
-        isSubmitting = true;
-        syncAllForms();
-
-        try {
-          const response = await fetch(resolvedNewsletterEndpoint, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(requestBody),
-          });
-
-          if (captchaToken) {
-            resetCaptcha(instance);
-          }
-
-          if (response.status === 204) {
-            isSubscribed = true;
-            isSubmitting = false;
-            syncAllForms();
-            return;
-          }
-
-          const payload = await readJsonSafely(response);
-
-          isSubmitting = false;
-          syncAllForms();
-
-          if (response.status === 429 && payload?.code === 'captcha_required') {
-            captchaRequired = true;
-
-            const isChallengeReady = await ensureCaptcha(instance, {
-              focus: true,
-              reset: false,
-            });
-
-            if (isChallengeReady) {
-              setStatus(instance, 'info', uiMessages.captchaRequired);
-            }
-
-            return;
-          }
-
-          if (response.status === 409) {
-            markInvalid(instance);
-            setStatus(instance, 'error', uiMessages.duplicate);
-            return;
-          }
-
-          if (response.status === 400 && payload?.code === 'captcha_invalid') {
-            captchaRequired = true;
-
-            const isChallengeReady = await ensureCaptcha(instance, {
-              focus: true,
-              reset: false,
-            });
-
-            if (isChallengeReady) {
-              setStatus(instance, 'error', uiMessages.captchaInvalid);
-            }
-
-            return;
-          }
-
-          if (
-            response.status === 400 &&
-            payload &&
-            typeof payload === 'object' &&
-            payload.fieldErrors &&
-            Array.isArray(payload.fieldErrors.email)
-          ) {
-            markInvalid(instance);
-            setStatus(instance, 'error', uiMessages.validation);
-            return;
-          }
-
-          if (response.status === 429) {
-            setStatus(instance, 'error', getRateLimitMessage(response.headers.get('Retry-After')));
-            return;
-          }
-
-          setStatus(instance, 'error', uiMessages.generic);
-        } catch {
-          if (captchaToken) {
-            resetCaptcha(instance);
-          }
-
-          isSubmitting = false;
-          syncAllForms();
-          setStatus(instance, 'error', uiMessages.generic);
-        }
+        await submitNewsletter(instance, normalizedEmail, captchaToken);
       });
     });
   }
